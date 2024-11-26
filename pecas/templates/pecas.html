@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Cadastro de Peças</title>
+</head>
+<body>
+    <div class="box-peças">
+        <h1>Cadastro de Peças</h1>
+        <form action="#">
+           
+            <div class="imput-campos">
+                <label>Nome</label>
+                <input type="text" placeholder=" Digite nome peça" required>
+
+            </div>
+            <div class="imput-campos">
+                <label>Codigo</label>
+                <input type="number" placeholder=" Digite codigo peça" required>
+
+            </div>
+            <div class="imput-campos">
+                <label>Preço</label>
+                <input type="number" placeholder=" Digite preço peça" required>
+            </div>
+            <input type="submit" value="Cadastrar">
+
+        </form>
+    </div>
+    <script>
+        const API_URL='http://127.0.0.1:8000/pecas';
+        const formPecas = document.getElementById('form-pecas');
+        const listaPecas = document.getElementById('lista-pecas');
+        const btnAtualizar = document.getElementById('btn-atualizar');
+        const btnDeletar = document.getElementById('btn-deletar');
+
+                
+        // Função para listar peças
+        async function listarPecas() {
+        try {
+            const resposta = await fetch(`${API_URL}/`);
+            const dados = await resposta.json();
+            listaPecas.innerHTML = '';
+            dados.forEach((peca) => {
+            const elemento = document.createElement('div');
+            elemento.innerHTML = `
+                <h2>${peca.nome}</h2>
+                <p>Código: ${peca.codigo}</p>
+                <p>Preço: ${peca.preco}</p>
+            `;
+            listaPecas.appendChild(elemento);
+            });
+        } catch (erro) {
+            console.error(erro);
+        }
+        }
+
+        // Função para criar peça
+        async function criarPeca(event) {
+        event.preventDefault();
+        const nome = document.getElementById('nome').value;
+        const codigo = document.getElementById('codigo').value;
+        const preco = document.getElementById('preco').value;
+        try {
+            const resposta = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nome, codigo, preco }),
+            });
+            const dado = await resposta.json();
+            console.log(dado);
+            listarPecas();
+        } catch (erro) {
+            console.error(erro);
+        }
+        }
+
+        // Função para atualizar peça
+        async function atualizarPeca(event) {
+            event.preventDefault();
+            const id = document.getElementById('id').value;
+            const nome = document.getElementById('nome').value;
+            const codigo = document.getElementById('codigo').value;
+            const preco = document.getElementById('preco').value;
+            const resposta = await fetch(`/api/pecas/${id}/`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nome, codigo, preco }),
+            });
+            const dado = await resposta.json();
+            console.log(dado);
+            listarPecas();
+        }
+
+        // Função para deletar peça
+        async function deletarPeca(event) {
+            event.preventDefault();
+            const id = document.getElementById('id').value;
+            const resposta = await fetch(`/api/pecas/${id}/`, { method: 'DELETE' });
+            const dado = await resposta.json();
+            console.log(dado);
+            listarPecas();
+        }
+
+        // Eventos
+        formPecas.addEventListener('submit', criarPeca);
+        btnAtualizar.addEventListener('click', atualizarPeca);
+        btnDeletar.addEventListener('click', deletarPeca);
+
+        // Listar peças ao carregar a página
+        listarPecas();
+
+
+      
+    </script>
+</body>
+</html>

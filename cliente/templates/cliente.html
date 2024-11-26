@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Cadastro De Clientes</title>
+</head>
+<body>
+    <div class="box-clientes">
+        <h1>Cadastro de Clientes</h1>
+        <form action="#">
+            <div class="input-campos">
+                <label>Nome</label>
+                <input type="text" placeholder="Digite seu nome" required>
+            </div>
+            <div class="input-campos">
+                <label>Endereço</label>
+                <input type="text" placeholder="Digite seu endereço" required>
+            </div>
+            <div class="input-campos">
+                <label>E-mail</label>
+                <input type="e-mail" placeholder="Digite seu e-mail" required>
+            </div>
+            <div class="input-campos">
+                <label>Fone</label>
+                <input type="number" placeholder="Digite o fone" required>
+            </div>
+            <input type="submit" value="Cadastrar">
+        
+        </form>
+
+    </div>
+    <script>
+        const API_URL='http://127.0.0.1:8000/cliente';
+        const formClientes = document.getElementById('form-clientes');
+        const listaClientes = document.getElementById('lista-clientes');
+        const btnAtualizar = document.getElementById('btn-atualizar');
+        const btnDeletar = document.getElementById('btn-deletar');
+
+        // Função para listar clientes
+        async function listarClientes() {
+            const resposta = await fetch('/api/clientes/');
+            const dados = await resposta.json();
+            listaClientes.innerHTML = '';
+            dados.forEach((cliente) => {
+                const elemento = document.createElement('div');
+                elemento.innerHTML = `
+                    <h2>${cliente.nome}</h2>
+                    <p>Endereço: ${cliente.endereco}</p>
+                    <p>E-mail: ${cliente.email}</p>
+                    <p>Fone: ${cliente.fone}</p>
+                `;
+                listaClientes.appendChild(elemento);
+            });
+        }
+
+        // Função para criar cliente
+        async function criarCliente(event) {
+            event.preventDefault();
+            const nome = document.getElementById('nome').value;
+            const endereco = document.getElementById('endereco').value;
+            const email = document.getElementById('email').value;
+            const fone = document.getElementById('fone').value;
+            const resposta = await fetch('/api/clientes/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nome, endereco, email, fone }),
+            });
+            const dado = await resposta.json();
+            console.log(dado);
+            listarClientes();
+        }
+
+        // Função para atualizar cliente
+        async function atualizarCliente(event) {
+            event.preventDefault();
+            const id = document.getElementById('id').value;
+            const nome = document.getElementById('nome').value;
+            const endereco = document.getElementById('endereco').value;
+            const email = document.getElementById('email').value;
+            const fone = document.getElementById('fone').value;
+            const resposta = await fetch(`/api/clientes/${id}/`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nome, endereco, email, fone }),
+            });
+            const dado = await resposta.json();
+            console.log(dado);
+            listarClientes();
+        }
+
+        // Função para deletar cliente
+        async function deletarCliente(event) {
+            event.preventDefault();
+            const id = document.getElementById('id').value;
+            const resposta = await fetch(`/api/clientes/${id}/`, { method: 'DELETE' });
+            const dado = await resposta.json();
+            console.log(dado);
+            listarClientes();
+        }
+
+        // Eventos
+        formClientes.addEventListener('submit', criarCliente);
+        btnAtualizar.addEventListener('click', atualizarCliente);
+        btnDeletar.addEventListener('click', deletarCliente);
+
+        // Listar clientes ao carregar a página
+        listarClientes();
+    </script>
+</body>
+</html>
